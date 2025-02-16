@@ -7,46 +7,93 @@ function ChessBoard() {
   const [aiThinking, setAiThinking] = useState(false);
 
   const makeAIMove = () => {
-    const gameCopy = new Chess(game.fen());
-    const possibleMoves = gameCopy.legal_moves; // Corrected: no parentheses
-
-    if (possibleMoves.length === 0) return; // Game over
-
-    // Random AI move
-    const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-
-    gameCopy.move(randomMove); // Make the move on the copy of the game state
-
     setTimeout(() => {
-      setGame(gameCopy); // Update the game state
-      setAiThinking(false); // AI is done thinking
+      setGame((prevGame) => {
+        const gameCopy = new Chess(prevGame.fen());
+  
+        // 🛑 Ensure it's AI's turn before making a move
+        if (gameCopy.turn() !== "b") {
+          console.warn("🛑 AI should only move as Black!");
+          setAiThinking(false); // Unlock player if AI cannot move
+          return prevGame;
+        }
+  
+        const possibleMoves = gameCopy.moves();
+  
+        // 🛑 If no moves are available, stop and unlock player
+        if (!possibleMoves.length) {
+          console.warn("⚠️ No legal moves available. Game over?");
+          setAiThinking(false);
+          return prevGame;
+        }
+  
+        // AI selects a random move
+        const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+        gameCopy.move(randomMove);
+  
+        console.log(`🤖 AI played: ${randomMove}`);
+  
+        // ✅ Unlock player moves after AI plays
+        setAiThinking(false);
+  
+        return gameCopy;
+      });
     }, 500);
   };
+  
+  
 
   const onDrop = ({ sourceSquare, targetSquare }) => {
     try {
-      const gameCopy = new Chess(game.fen());
-      let move = gameCopy.move({
-        from: sourceSquare,
-        to: targetSquare,
-        promotion: "q", // Promote pawns to queens
-      });
-
-      if (!move) {
-        console.warn(`⚠️ Invalid move: ${sourceSquare} -> ${targetSquare}`);
+      if (aiThinking) {
+        console.warn("🚫 AI is thinking. Please wait.");
         return;
       }
-
-      setGame(gameCopy); // Update game state with the player move
-      setAiThinking(true); // Set AI thinking state
-
-      // AI moves after a delay
-      setTimeout(() => makeAIMove(), 1000);
+  
+      setGame((prevGame) => {
+        const gameCopy = new Chess(prevGame.fen());
+  
+        // 🛑 Ensure it's White's turn before allowing a move
+        if (gameCopy.turn() !== "w") {
+          console.warn("🚫 It's not your turn!");
+          return prevGame;
+        }
+  
+        // 🛑 Validate move by checking if (from, to) exists in legal moves
+        const possibleMoves = gameCopy.moves({ verbose: true });
+        const isValidMove = possibleMoves.some(
+          (move) => move.from === sourceSquare && move.to === targetSquare
+        );
+  
+        if (!isValidMove) {
+          console.warn(`⚠️ Invalid move: ${sourceSquare} -> ${targetSquare}`);
+          return prevGame; // Prevents runtime errors
+        }
+  
+        // Make the move
+        const move = gameCopy.move({
+          from: sourceSquare,
+          to: targetSquare,
+          promotion: "q", // Always promote to queen
+        });
+  
+        console.log(`✅ Player moved: ${move.san}`);
+  
+        // ✅ Lock player moves, AI is now thinking
+        setAiThinking(true);
+  
+        // AI moves after a delay
+        setTimeout(() => makeAIMove(), 500);
+  
+        return gameCopy;
+      });
     } catch (error) {
       console.error("❌ Error processing move:", error);
     }
   };
-
+  
+  
+  
   return (
     <div className="chessboard-container">
       <Chessboard position={game.fen()} onDrop={onDrop} />
