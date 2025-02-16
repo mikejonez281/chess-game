@@ -1,8 +1,6 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import Chessboard2D from "./Chessboard2D";
 import Chessboard3D from "./Chessboard3D";
-
-console.log("✅ ChessGame loaded"); // Add this!
 
 function ChessGame() {
   const [viewMode, setViewMode] = useState("2D");
