@@ -1,16 +1,18 @@
 import logo from './logo.svg';
 import './App.css';
 
-import ChessBoard from "./Chessboard";
+import ChessGame from "./components/ChessGame";
+
+console.log("✅ App.js loaded"); // Add this!
 
 function App() {
   return (
     <div className="App">
-      <h1>Welcome to My Chess Game</h1>
-      <p>Get ready to play chess! 🚀</p>
-      <ChessBoard />
+      <h1>React Chess Game</h1>
+      <ChessGame />
     </div>
   );
 }
 
 export default App;
+
