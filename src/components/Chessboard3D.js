@@ -343,24 +343,21 @@ function Chessboard3D() {
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <Canvas
-        camera={{ position: [0, 8, 8], fov: 50 }}
+        camera={{ position: [0, 10, 7], fov: 45 }}
         style={{ background: '#202020' }}
       >
-        <PerspectiveCamera makeDefault position={[0, 8, 8]} />
+        <PerspectiveCamera makeDefault position={[0, 10, 7]} />
         
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[5, 8, 5]} intensity={1} />
-        <pointLight position={[-5, 5, -5]} intensity={0.5} />
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[5, 10, 5]} intensity={1.2} />
+        <pointLight position={[-5, 8, -5]} intensity={0.5} />
         
-        {/* Chessboard */}
-        <group position={[0, -1, 0]} rotation={[0, 0, 0]}>
-          {/* Board base */}
+        <group position={[0, -1, 0]} rotation={[0, Math.PI, 0]}>
           <mesh position={[0, 0, 0]}>
             <boxGeometry args={[9, 0.5, 9]} />
             <meshStandardMaterial color="#8B4513" />
           </mesh>
 
-          {/* Checkerboard pattern */}
           {Array.from({ length: 8 }, (_, i) =>
             Array.from({ length: 8 }, (_, j) => (
               <mesh
@@ -380,7 +377,6 @@ function Chessboard3D() {
           )}
         </group>
 
-        {/* Add clickable squares */}
         {Array.from({ length: 8 }, (_, i) =>
           Array.from({ length: 8 }, (_, j) => {
             const square = `${String.fromCharCode(97 + i)}${8 - j}`;
@@ -402,12 +398,10 @@ function Chessboard3D() {
           })
         )}
 
-        {/* Add legal move indicators */}
         {selectedPiece?.legalMoves?.map((move, index) => (
           <LegalMoveIndicator key={index} square={move.to} />
         ))}
 
-        {/* Chess pieces */}
         {pieces.map((piece, index) => (
           <Piece
             key={index}
@@ -430,12 +424,12 @@ function Chessboard3D() {
           enablePan={false}
           enableZoom={true}
           enableRotate={true}
-          minDistance={8}
-          maxDistance={12}
-          minPolarAngle={Math.PI / 4}
+          minDistance={10}
+          maxDistance={15}
+          minPolarAngle={Math.PI / 6}
           maxPolarAngle={Math.PI / 3}
-          minAzimuthAngle={-Math.PI / 4}
-          maxAzimuthAngle={Math.PI / 4}
+          minAzimuthAngle={-Math.PI / 6}
+          maxAzimuthAngle={Math.PI / 6}
           target={[0, 0, 0]}
         />
       </Canvas>
